@@ -22,6 +22,7 @@ run_configure() {
     CPP="gcc -E" emconfigure ./configure \
         --enable-fail-if-missing \
         --enable-gui=wasm \
+        --host=x86_64 \
         "--with-features=${feature}" \
         --with-x=no \
         --with-vim-name=vim.bc \
@@ -64,11 +65,12 @@ run_configure() {
         --disable-acl \
         --disable-gpm \
         --disable-sysmouse \
-        --disable-nls
+        --disable-nls \
+        vim_cv_toupper_broken=set 
 }
 
 run_make() {
-    message "Running make"
+    message "Running make (PWD=$PWD)"
     local cflags
     if [[ "$RELEASE" != "" ]]; then
         cflags="-Os"
@@ -77,6 +79,7 @@ run_make() {
     else
         cflags="-O1 -g -DGUI_WASM_DEBUG"
     fi
+    message "  emake make -j CFLAGS=\"$cflags\""
     emmake make -j CFLAGS="$cflags"
     message "Copying bitcode to wasm/"
     cp src/vim.bc wasm/
